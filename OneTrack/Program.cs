@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using OneTrack.Data;
+using OneTrack.Email_Services;
+using OneTrack.Repostiories;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
 using System.Collections.ObjectModel;
@@ -13,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Retrieve the connection string for the Logging Database from the configuration
 var loggerConnectionString = builder.Configuration.GetConnectionString("LoggerConnection");
 var identityConnectionString = builder.Configuration.GetConnectionString("IdentityConnection");
+var settingsConnectionString = builder.Configuration.GetConnectionString("SettingsConnection");
 
 if (string.IsNullOrEmpty(loggerConnectionString))
 {
@@ -22,6 +26,11 @@ if (string.IsNullOrEmpty(loggerConnectionString))
 if (string.IsNullOrEmpty(identityConnectionString))
 {
     throw new ArgumentNullException(nameof(identityConnectionString), "Connection string 'IdentityConnection' is missing.");
+}
+
+if (string.IsNullOrEmpty(settingsConnectionString))
+{
+    throw new ArgumentNullException(nameof(settingsConnectionString), "Connection string 'SettingsConnection' is missing.");
 }
 
 // Define column options for logging to SQL Server
@@ -56,6 +65,7 @@ Log.Logger = new LoggerConfiguration()
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(identityConnectionString));
+builder.Services.AddDbContext<SettingsDbContext>(options => options.UseSqlServer(settingsConnectionString));
 
 // Configure Identity
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
@@ -80,6 +90,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddScoped<EmailSettingsRepository>();
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 builder.Host.UseSerilog();
 

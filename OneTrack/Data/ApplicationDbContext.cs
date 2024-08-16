@@ -6,7 +6,7 @@ namespace OneTrack.Data
 {
     public class ApplicationDbContext : IdentityDbContext<IdentityUser, IdentityRole, string>
     {
-        public ApplicationDbContext(DbContextOptions options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
     }
