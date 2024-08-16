@@ -1,0 +1,79 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<OneTrack.ViewModels.RoleUsersViewModel>
+
+<h2 class="mb-3">Role Management</h2>
+
+@foreach (var role in Model)
+{
+    <h3 class="mt-4">@role.RoleName</h3>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in role.Users)
+            {
+                <tr>
+                    <td>
+                        @user.Email
+                    </td>
+                    <td>
+                        <form asp-action="RemoveRole" method="post" style="display:inline;">
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            <input type="hidden" name="roleName" value="@role.RoleName" />
+                            <button type="submit" class="btn btn-danger btn-sm">Remove Role</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            @if (role.Users.Count == 0)
+            {
+                <tr>
+                    <td colspan="2">No users inert this role</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h4 class="mt-4">Create a New Role</h4>
+
+<form asp-action="CreateRole" method="post">
+    <div class="form-group mb-3">
+        <label for="roleName">Role Name</label>
+        <input type="text" id="roleName" name="roleName" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-success">Create Role</button>
+</form>
+
+<h4 class="mt-4">Assign a Role to a User</h4>
+
+<form asp-action="AssignRole" method="post">
+    <div class="form-group mb-3">
+        <label for="userId">Select User</label>
+        <select id="userId" name="userId" class="form-control">
+            @foreach (var user in @Html.ViewContext.ViewData["Users"] as List<IdentityUser>)
+            {
+                <option value="@user.Id">@user.Email</option>
+            }
+        </select>
+    </div>
+    <div class="form-group mb-3">
+        <label for="roleName">Select Role</label>
+        <select id="roleName" name="roleName" class="form-control">
+            @foreach (var role in Model)
+            {
+                <option value="@role.RoleName">@role.RoleName</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Assign Role</button>
+</form>
+
+@{
+    ViewBag.Title = "Role Management";
+}
