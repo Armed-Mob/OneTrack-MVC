@@ -1,0 +1,115 @@
+﻿@using X.Web.PagedList
+@model X.PagedList.IPagedList<OneTrack.Models.LogEntry>
+
+<div class="container mt-5">
+    <h2>Application Logs</h2>
+
+    <!-- Filter Logs Form -->
+    <form method="get">
+        <div class="row mb-3">
+            <div class="col">
+                <input type="date" class="form-control" name="startDate" placeholder="Start Date" value="@Context.Request.Query["startDate"]" />
+            </div>
+            <div class="col">
+                <input type="date" class="form-control" name="endDate" placeholder="End Date" value="@Context.Request.Query["endDate"]" />
+            </div>
+            <div class="col">
+                <select class="form-control" name="level">
+                    @if (string.IsNullOrEmpty(Context.Request.Query["level"]))
+                    {
+                        <option value="" selected>All Levels</option>
+                    }
+                    else
+                    {
+                        <option value="">All Levels</option>
+                    }
+
+                    @if (Context.Request.Query["level"] == "Information")
+                    {
+                        <option value="Information" selected>Information</option>
+                    }
+                    else
+                    {
+                        <option value="Information">Information</option>
+                    }
+
+                    @if (Context.Request.Query["level"] == "Warning")
+                    {
+                        <option value="Warning" selected>Warning</option>
+                    }
+                    else
+                    {
+                        <option value="Warning">Warning</option>
+                    }
+
+                    @if (Context.Request.Query["level"] == "Error")
+                    {
+                        <option value="Error" selected>Error</option>
+                    }
+                    else
+                    {
+                        <option value="Error">Error</option>
+                    }
+
+                    @if (Context.Request.Query["level"] == "Fatal")
+                    {
+                        <option value="Fatal" selected>Fatal</option>
+                    }
+                    else
+                    {
+                        <option value="Fatal">Fatal</option>
+                    }
+                </select>
+            </div>
+            <div class="col">
+                <input type="text" class="form-control" name="search" placeholder="Search" value="@Context.Request.Query["search"]" />
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+    </form>
+    
+    <!-- Clear Logs Form -->
+    <form method="post" asp-action="ClearLogs">
+        <button type="submit" class="btn btn-danger mb-3" onclick="return confirm('Are you sure you want to clear all logs?')">Clear Logs</button>
+    </form>
+
+    <!-- Logs Table -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Level</th>
+                <th>Message</th>
+                <th>User</th>
+                <th>Request Path</th>
+                <th>Exception</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Model)
+            {
+                <tr>
+                    <td>@log.TimeStamp</td>
+                    <td>@log.Level</td>
+                    <td>@log.Message</td>
+                    <td>@log.UserName</td>
+                    <td>@log.RequestPath</td>
+                    <td>@log.Exception</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="row">
+        <div class="col-md-12">
+            @Html.PagedListPager(Model, page => Url.Action("Index", new { page, startDate = Context.Request.Query["startDate"], endDate = Context.Request.Query["endDate"], level = Context.Request.Query["level"], search = Context.Request.Query["search"] }))
+        </div>
+    </div>
+</div>
+
+
+@{
+}
